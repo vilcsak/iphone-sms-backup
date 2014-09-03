@@ -31,6 +31,9 @@ import shutil
 import sqlite3
 import sys
 import tempfile
+import subprocess
+import hashlib
+import string
 
 from datetime import datetime
 
@@ -373,10 +376,15 @@ SELECT
     m.date,
     m.is_from_me,
     h.id,
-    m.text
+    m.text,
+    a.filename
 FROM
     message m,
     handle h
+LEFT OUTER JOIN
+    message_attachment_join maj ON maj.message_id = m.rowid
+LEFT OUTER JOIN
+    attachment a ON maj.attachment_id = a.rowid
 WHERE
     m.handle_id = h.rowid"""
     # Build up the where clause, if limiting query by phone and/or email.
@@ -642,9 +650,20 @@ def get_messages_ios6(cursor, query, params, aliases, cmd_args):
         msg = {'date': fmt_date,
                'from': fmt_from,
                'to': fmt_to,
-               'text': clean_text_msg(row['text'])}
+               'text': clean_text_msg(row['text']),
+               'filename': convert_attachment_filename(row['filename'])}
         messages.append(msg)
     return messages
+
+def convert_attachment_filename(filename):
+    if filename:
+        filename = string.replace(filename, "~/", "MediaDomain-")
+        filename = string.replace(filename, "/var/mobile/", "MediaDomain-")
+        sha1 = hashlib.sha1(filename).hexdigest()
+
+        directory = string.replace(ORIG_DB, "3d0d7e5fb2ce288813306e4d4636395e047a3d28", "")
+        return directory+sha1
+    return filename
 
 def msgs_human(messages, header):
     """
