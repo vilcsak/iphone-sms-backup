@@ -142,8 +142,6 @@ Known Limitations
 
   * Assumes encoding of texts is 'utf-8'...and there's no way to change it.
     
-  * Does not try to recover texts with photos.  Just skips past them.
-  
   * Does not handle group chats.
 
 License
