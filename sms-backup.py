@@ -710,12 +710,13 @@ def msgs_csv(messages, header):
     queue = cStringIO.StringIO()
     writer = csv.writer(queue, dialect=csv.excel, quoting=csv.QUOTE_ALL)
     if header:
-        writer.writerow(['Date', 'From', 'To', 'Text'])
+        writer.writerow(['Date', 'From', 'To', 'Text', 'Filename'])
     for m in messages:
         writer.writerow([m['date'].encode('utf-8'),
                          m['from'].encode('utf-8'),
                          m['to'].encode('utf-8'),
-                         m['text'].encode('utf-8')])
+                         m['text'].encode('utf-8'),
+                         (m['filename'].encode('utf-8') if m['filename'] else '')])
     output = queue.getvalue()
     queue.close()
     return output
